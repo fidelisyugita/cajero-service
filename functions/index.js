@@ -34,7 +34,6 @@ const auto = require("./src/auto");
 const auth = require("./src/auth");
 
 const user = require("./src/user");
-const contact = require("./src/contact");
 const attendance = require("./src/attendance");
 const dashboard = require("./src/dashboard");
 
@@ -56,7 +55,6 @@ exports.auto = auto;
 exports.auth = auth;
 
 exports.user = user;
-exports.contact = contact;
 exports.attendance = attendance;
 exports.dashboard = dashboard;
 
