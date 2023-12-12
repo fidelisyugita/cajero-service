@@ -91,7 +91,6 @@ app.post("/", async (req, res) => {
 
     let data = {
       category: thinObject(body?.category),
-      brand: thinObject(body?.brand),
       name: body?.name,
       color: body?.color,
       measureUnit: thinObject(body?.measureUnit),

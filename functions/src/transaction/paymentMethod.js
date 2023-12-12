@@ -1,14 +1,14 @@
 const { logger, https } = require("firebase-functions/v2");
-const { isNil } = require("ramda");
+const R = require("ramda");
 
-const { LIMIT_PER_PAGE } = require("./lib/config");
-const { authenticate } = require("./lib/authHelper");
+const { LIMIT_PER_PAGE } = require("../lib/config");
+const { authenticate } = require("../lib/authHelper");
 const {
-  contactsCollection,
+  paymentMethodCollection,
   serverTimestamp,
   usersCollection,
-} = require("./lib/firebaseHelper");
-const { standarizeData } = require("./lib/transformHelper");
+} = require("../lib/firebaseHelper");
+const { standarizeData } = require("../lib/transformHelper");
 
 const express = require("express");
 const app = express();
@@ -20,15 +20,13 @@ app.get("/", async (req, res) => {
   const limit = Number(req?.query?.limit || LIMIT_PER_PAGE);
   const offset = req?.query?.page ? limit * Number(req.query.page) : 0;
   logger.log(
-    `GET CONTACTS WITH KEYWORD: "${keyword}", LIMIT: "${limit}", OFFSET: "${offset}"`
+    `GET PAYMENT METHODS WITH KEYWORD: "${keyword}", LIMIT: "${limit}", OFFSET: "${offset}"`
   );
 
   try {
-    const querySnapshot = await contactsCollection
+    const querySnapshot = await paymentMethodCollection
       .where("isActive", "==", true)
-      .where("nameLowercase", ">=", keyword)
-      .where("nameLowercase", "<=", keyword + "\uf8ff")
-      .orderBy("nameLowercase")
+      .orderBy("step")
       .limit(limit)
       .offset(offset)
       .get();
@@ -48,18 +46,12 @@ app.post("/", async (req, res) => {
     const body = req?.body || {};
     let data = {
       name: body?.name,
-      email: body?.email,
-      alias: body?.alias,
-      phone: body?.phone,
-      address: body?.address,
       description: body?.description,
-      merchant: body?.merchant,
-      note: body?.note,
 
       nameLowercase: String(body?.name).toLowerCase(),
     };
-    Object.keys(data).forEach((key) => isNil(data[key]) && delete data[key]);
-    logger.log(`CONTACT DATA: `, data);
+    Object.keys(data).forEach((key) => R.isNil(data[key]) && delete data[key]);
+    logger.log(`PAYMENT METHOD DATA: `, data);
 
     const doc = await usersCollection.doc(req.user.uid).get();
     const user = {
@@ -67,10 +59,10 @@ app.post("/", async (req, res) => {
       email: req.user.email,
       name: doc.data().name || "-",
     };
-    logger.log(`SAVE CONTACT BY: `, user);
+    logger.log(`SAVE PAYMENT METHOD BY: `, user);
     data = { ...data, updatedBy: user, updatedAt: serverTimestamp() };
     if (req?.body?.id) {
-      await contactsCollection.doc(req.body.id).set(data, { merge: true });
+      await paymentMethodCollection.doc(req.body.id).set(data, { merge: true });
     } else {
       data = {
         ...data,
@@ -78,7 +70,7 @@ app.post("/", async (req, res) => {
         createdBy: user,
         createdAt: serverTimestamp(),
       };
-      const docRef = await contactsCollection.add(data);
+      const docRef = await paymentMethodCollection.add(data);
       data = { ...data, id: docRef.id };
     }
 
@@ -89,26 +81,26 @@ app.post("/", async (req, res) => {
   }
 });
 
-app.get("/:contactId", async (req, res) => {
-  const contactId = req.params.contactId;
-  logger.log(`GET CONTACT WITH ID: "${contactId}"`);
+app.get("/:paymentMethodId", async (req, res) => {
+  const paymentMethodId = req.params.paymentMethodId;
+  logger.log(`GET PAYMENT METHOD WITH ID: "${paymentMethodId}"`);
 
   try {
-    const doc = await contactsCollection.doc(contactId).get();
-    return res.status(200).json(standarizeData(doc.data(), contactId));
+    const doc = await paymentMethodCollection.doc(paymentMethodId).get();
+    return res.status(200).json(standarizeData(doc.data(), paymentMethodId));
   } catch (error) {
     logger.error(error.message);
     return res.status(500).json(error);
   }
 });
 
-app.delete("/:contactId", async (req, res) => {
-  const contactId = req.params.contactId;
-  logger.log(`SOFT-DELETE CONTACT WITH ID: "${contactId}"`);
+app.delete("/:paymentMethodId", async (req, res) => {
+  const paymentMethodId = req.params.paymentMethodId;
+  logger.log(`SOFT-DELETE PAYMENT METHOD WITH ID: "${paymentMethodId}"`);
 
   try {
-    await contactsCollection
-      .doc(contactId)
+    await paymentMethodCollection
+      .doc(paymentMethodId)
       .set({ isActive: false }, { merge: true });
     return res.status(200).json({ ok: true });
   } catch (error) {

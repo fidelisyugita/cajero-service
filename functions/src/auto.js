@@ -1,4 +1,4 @@
-const { logger } = require("firebase-functions");
+const { logger } = require("firebase-functions/v2");
 const functions = require("firebase-functions");
 
 const { serverTimestamp, usersCollection } = require("./lib/firebaseHelper");
@@ -12,12 +12,13 @@ exports.createUser = auth.user().onCreate(async (user) => {
   const data = {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    phone: user.phoneNumber,
-    imageUrl: user.photoURL,
     name: user.displayName,
     email: user.email,
+    phone: user.phoneNumber,
+    role: "STAFF",
+    imageUrl: user.photoURL,
+
     id: user.uid,
-    roles: ["SALES", "ACCOUNTING", "PURCHASE", "INVENTORY"],
     isActive: true,
 
     nameLowercase: String(user?.displayName).toLowerCase(),

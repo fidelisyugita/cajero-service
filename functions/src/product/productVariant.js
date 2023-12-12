@@ -41,7 +41,6 @@ app.get("/", async (req, res) => {
         result.push({
           ...variant,
           category: thinObject(data?.category),
-          brand: thinObject(data?.brand),
           name: data?.name,
           color: data?.color,
           measureUnit: thinObject(data?.measureUnit),

@@ -1,15 +1,11 @@
 const { logger, https } = require("firebase-functions/v2");
-const {  isEmpty } = require("ramda");
+const { isEmpty } = require("ramda");
 const moment = require("moment");
 
 // const { LIMIT_PER_PAGE } = require("./lib/config");
 const { authenticate } = require("./lib/authHelper");
-const {
-  transactionsCollection,
-} = require("./lib/firebaseHelper");
-const {
-  standarizeData,
-} = require("./lib/transformHelper");
+const { transactionsCollection } = require("./lib/firebaseHelper");
+const { standarizeData } = require("./lib/transformHelper");
 
 const express = require("express");
 const app = express();

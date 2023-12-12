@@ -55,13 +55,17 @@ app.put("/", async (req, res) => {
   try {
     const body = req?.body || {};
     let data = {
-      phone: body?.phone,
-      imageUrl: body?.imageUrl,
       name: body?.name,
       // email: body?.email,
-      roles: body?.roles,
+      phone: body?.phone,
+      role: body?.role,
+      imageUrl: body?.imageUrl,
       address: body?.address,
       description: body?.description,
+      bankAccount: body?.bankAccount,
+      ktpUrl: body?.ktpUrl,
+      dailySalary: body?.dailySalary,
+      overtime: body?.bankAccount,
 
       nameLowercase: String(body?.name).toLowerCase(),
     };

@@ -45,7 +45,6 @@ exports.thinTransactionProduct = (obj) => {
     barcode: obj.barcode,
     size: obj.size,
     color: obj.color,
-    brand: this.thinObject(obj.brand),
     name: obj.name,
     category: this.thinObject(obj.category),
     buyingPrice: Number(obj.buyingPrice || 0),

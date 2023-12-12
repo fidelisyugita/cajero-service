@@ -38,7 +38,6 @@ const contact = require("./src/contact");
 const attendance = require("./src/attendance");
 const dashboard = require("./src/dashboard");
 
-const brand = require("./src/product/brand");
 const measureUnit = require("./src/product/measureUnit");
 
 const productCategory = require("./src/product/productCategory");
@@ -48,6 +47,7 @@ const productVariant = require("./src/product/productVariant");
 const transaction = require("./src/transaction/transaction");
 const transactionStatus = require("./src/transaction/transactionStatus");
 const transactionType = require("./src/transaction/transactionType");
+const paymentMethod = require("./src/transaction/paymentMethod");
 
 // Expose the API as a function
 exports.master = master;
@@ -60,13 +60,12 @@ exports.contact = contact;
 exports.attendance = attendance;
 exports.dashboard = dashboard;
 
-exports.brand = brand;
-exports.measureUnit = measureUnit;
-
 exports.productCategory = productCategory;
 exports.product = product;
 exports.productVariant = productVariant;
+exports.measureUnit = measureUnit;
 
 exports.transaction = transaction;
 exports.transactionStatus = transactionStatus;
 exports.transactionType = transactionType;
+exports.paymentMethod = paymentMethod;

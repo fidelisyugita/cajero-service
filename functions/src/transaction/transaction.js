@@ -101,7 +101,6 @@ app.post("/", async (req, res) => {
     let totalBuyingPrice = 0;
     let totalItem = 0;
     let categoryIds = [];
-    let brandIds = [];
     products.forEach((item) => {
       totalSellingPrice +=
         Number(item?.sellingPrice || 0) * Number(item?.amount || 1);
@@ -113,10 +112,6 @@ app.post("/", async (req, res) => {
         const catId = item.category.id;
         if (!categoryIds.includes(catId)) categoryIds.push(catId);
       }
-      if (item?.brand?.id) {
-        const brandId = item.brand.id;
-        if (!brandIds.includes(brandId)) brandIds.push(brandId);
-      }
     });
 
     data = {
@@ -125,7 +120,6 @@ app.post("/", async (req, res) => {
       totalBuyingPrice: totalBuyingPrice,
       totalItem: totalItem,
       categoryIds: categoryIds,
-      brandIds: brandIds,
     };
     Object.keys(data).forEach((key) => isNil(data[key]) && delete data[key]);
     logger.log(`TRANSACTION DATA: `, data);
@@ -213,7 +207,6 @@ app.post("/online", async (req, res) => {
             tempProd = {
               ...variant,
               category: thinObject(tempData?.category),
-              brand: thinObject(tempData?.brand),
               name: tempData?.name,
               color: tempData?.color,
               measureUnit: thinObject(tempData?.measureUnit),
@@ -259,7 +252,6 @@ app.post("/online", async (req, res) => {
     let totalBuyingPrice = 0;
     let totalItem = 0;
     let categoryIds = [];
-    let brandIds = [];
     products.forEach((item) => {
       totalSellingPrice +=
         Number(item?.sellingPrice || 0) * Number(item?.amount || 1);
@@ -271,10 +263,6 @@ app.post("/online", async (req, res) => {
         const catId = item.category.id;
         if (!categoryIds.includes(catId)) categoryIds.push(catId);
       }
-      if (item?.brand?.id) {
-        const brandId = item.brand.id;
-        if (!brandIds.includes(brandId)) brandIds.push(brandId);
-      }
     });
 
     data = {
@@ -283,7 +271,6 @@ app.post("/online", async (req, res) => {
       totalBuyingPrice: totalBuyingPrice,
       totalItem: totalItem,
       categoryIds: categoryIds,
-      brandIds: brandIds,
     };
     Object.keys(data).forEach((key) => isNil(data[key]) && delete data[key]);
     logger.log(`TRANSACTION DATA: `, data);
