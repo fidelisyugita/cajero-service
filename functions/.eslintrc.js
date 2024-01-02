@@ -1,21 +1,19 @@
 module.exports = {
-  "env": {
+  env: {
     es6: true,
     node: true,
   },
-  "parserOptions": {
-    "ecmaVersion": 2018,
+  parserOptions: {
+    parser: "@babel/eslint-parser",
+    ecmaVersion: 2020,
   },
-  "parser": "@babel/eslint-parser",
-  "extends": [
-    "eslint:recommended",
-  ],
-  "rules": {
+  extends: ["eslint:recommended"],
+  rules: {
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
-    "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+    quotes: ["error", "double", { allowTemplateLiterals: true }],
   },
-  "overrides": [
+  overrides: [
     {
       files: ["**/*.spec.*"],
       env: {
@@ -24,5 +22,5 @@ module.exports = {
       rules: {},
     },
   ],
-  "globals": {},
+  globals: {},
 };

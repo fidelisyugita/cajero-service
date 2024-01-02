@@ -1,7 +1,9 @@
 const { logger, https } = require("firebase-functions/v2");
 const { isNil, isEmpty } = require("ramda");
 
-const { LIMIT_PER_PAGE, ERROR_MESSAGE } = require("../lib/config");
+const { v4 } = require("uuid");
+
+const { LIMIT_PER_PAGE } = require("../lib/config");
 const { authenticate } = require("../lib/authHelper");
 const {
   productsCollection,
@@ -10,14 +12,9 @@ const {
 } = require("../lib/firebaseHelper");
 // const { generatePdfProduct } = require("../lib/pdfHelper");
 const { upload } = require("../lib/storageHelper");
-const {
-  thinObject,
-  standarizeData,
-  thinProductVariant,
-} = require("../lib/transformHelper");
+const { thinObject, standarizeData } = require("../lib/transformHelper");
 
 const express = require("express");
-const { generateSku } = require("../lib/utils");
 const app = express();
 app.use(authenticate);
 
@@ -59,35 +56,14 @@ app.post("/", async (req, res) => {
   try {
     const body = req?.body || {};
 
-    const pId = generateSku(body?.category?.name, body?.name, body?.color);
-    if (isNil(pId) || isEmpty(pId))
-      return res.status(405).json(ERROR_MESSAGE.invalidInput);
+    let pId = v4();
+    if (req?.body?.id) {
+      pId = req?.body?.id;
+      delete req?.body?.stock;
+      delete req?.body?.sold;
+    }
 
-    const pDoc = await productsCollection.doc(pId).get();
-    if (pDoc.exists) return res.status(405).json(ERROR_MESSAGE.alreadyExists);
-
-    if (isNil(body?.variants) || isEmpty(body?.variants))
-      return res.status(405).json(ERROR_MESSAGE.invalidInput);
-
-    const timeInMs = new Date().getTime();
-    const barcodes = [];
-    const variants = body?.variants.map((variant) => {
-      const barcode = `${timeInMs}${variant?.size}`;
-      const sku = generateSku(
-        body?.category?.name,
-        body?.name,
-        body?.color,
-        variant?.size
-      );
-
-      const tempProd = {
-        ...variant,
-        sku: sku,
-        barcode: barcode,
-      };
-      barcodes.push(barcode);
-      return thinProductVariant(tempProd);
-    });
+    const vList = body?.variants.map((va) => thinObject(va));
 
     let data = {
       category: thinObject(body?.category),
@@ -96,8 +72,16 @@ app.post("/", async (req, res) => {
       measureUnit: thinObject(body?.measureUnit),
       note: body?.note,
 
-      variants: variants,
-      barcodes: barcodes,
+      buyingPrice: body?.buyingPrice,
+      sellingPrice: body?.sellingPrice,
+      stock: body?.stock,
+      sold: body?.sold,
+
+      commission: body?.commission,
+      commissionByPercent: body?.commissionByPercent,
+
+      variants: vList,
+
       nameLowercase: String(body?.name).toLowerCase(),
     };
 
@@ -125,7 +109,7 @@ app.post("/", async (req, res) => {
       createdBy: user,
       createdAt: serverTimestamp(),
     };
-    const docRef = await productsCollection.doc(pId).set(data);
+    const docRef = await productsCollection.doc(pId).set(data, { merge: true });
     data = { ...data, id: docRef.id };
 
     return res.status(200).json(data);

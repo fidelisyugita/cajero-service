@@ -4,7 +4,7 @@ const R = require("ramda");
 const { LIMIT_PER_PAGE } = require("../lib/config");
 const { authenticate } = require("../lib/authHelper");
 const {
-  transactionStatusesCollection,
+  variantsCollection,
   serverTimestamp,
   usersCollection,
 } = require("../lib/firebaseHelper");
@@ -20,13 +20,15 @@ app.get("/", async (req, res) => {
   const limit = Number(req?.query?.limit || LIMIT_PER_PAGE);
   const offset = req?.query?.page ? limit * Number(req.query.page) : 0;
   logger.log(
-    `GET TRANSACTION STATUSES WITH KEYWORD: "${keyword}", LIMIT: "${limit}", OFFSET: "${offset}"`
+    `GET VARIANT WITH KEYWORD: "${keyword}", LIMIT: "${limit}", OFFSET: "${offset}"`
   );
 
   try {
-    const querySnapshot = await transactionStatusesCollection
+    const querySnapshot = await variantsCollection
       .where("isActive", "==", true)
-      .orderBy("step")
+      .where("nameLowercase", ">=", keyword)
+      .where("nameLowercase", "<=", keyword + "\uf8ff")
+      .orderBy("nameLowercase")
       .limit(limit)
       .offset(offset)
       .get();
@@ -44,14 +46,26 @@ app.get("/", async (req, res) => {
 app.post("/", async (req, res) => {
   try {
     const body = req?.body || {};
+
+    const vList = body?.list.map((np) => {
+      const res = {
+        name: np?.name,
+        price: np?.price,
+      };
+      return res;
+    });
+
     let data = {
       name: body?.name,
+      isRequired: body?.isRequired,
+      isMultiple: body?.isMultiple,
       description: body?.description,
+      list: vList,
 
       nameLowercase: String(body?.name).toLowerCase(),
     };
     Object.keys(data).forEach((key) => R.isNil(data[key]) && delete data[key]);
-    logger.log(`TRANSACTION STATUS DATA: `, data);
+    logger.log(`VARIANT DATA: `, data);
 
     const doc = await usersCollection.doc(req.user.uid).get();
     const user = {
@@ -59,12 +73,10 @@ app.post("/", async (req, res) => {
       email: req.user.email,
       name: doc.data().name || "-",
     };
-    logger.log(`SAVE TRANSACTION STATUS BY: `, user);
+    logger.log(`SAVE VARIANT BY: `, user);
     data = { ...data, updatedBy: user, updatedAt: serverTimestamp() };
     if (req?.body?.id) {
-      await transactionStatusesCollection
-        .doc(req.body.id)
-        .set(data, { merge: true });
+      await variantsCollection.doc(req.body.id).set(data, { merge: true });
     } else {
       data = {
         ...data,
@@ -72,7 +84,7 @@ app.post("/", async (req, res) => {
         createdBy: user,
         createdAt: serverTimestamp(),
       };
-      const docRef = await transactionStatusesCollection.add(data);
+      const docRef = await variantsCollection.add(data);
       data = { ...data, id: docRef.id };
     }
 
@@ -83,32 +95,26 @@ app.post("/", async (req, res) => {
   }
 });
 
-app.get("/:transactionStatusId", async (req, res) => {
-  const transactionStatusId = req.params.transactionStatusId;
-  logger.log(`GET TRANSACTION STATUS WITH ID: "${transactionStatusId}"`);
+app.get("/:variantId", async (req, res) => {
+  const variantId = req.params.variantId;
+  logger.log(`GET VARIANT WITH ID: "${variantId}"`);
 
   try {
-    const doc = await transactionStatusesCollection
-      .doc(transactionStatusId)
-      .get();
-    return res
-      .status(200)
-      .json(standarizeData(doc.data(), transactionStatusId));
+    const doc = await variantsCollection.doc(variantId).get();
+    return res.status(200).json(standarizeData(doc.data(), variantId));
   } catch (error) {
     logger.error(error.message);
     return res.status(500).json(error);
   }
 });
 
-app.delete("/:transactionStatusId", async (req, res) => {
-  const transactionStatusId = req.params.transactionStatusId;
-  logger.log(
-    `SOFT-DELETE TRANSACTION STATUS WITH ID: "${transactionStatusId}"`
-  );
+app.delete("/:variantId", async (req, res) => {
+  const variantId = req.params.variantId;
+  logger.log(`SOFT-DELETE VARIANT WITH ID: "${variantId}"`);
 
   try {
-    await transactionStatusesCollection
-      .doc(transactionStatusId)
+    await variantsCollection
+      .doc(variantId)
       .set({ isActive: false }, { merge: true });
     return res.status(200).json({ ok: true });
   } catch (error) {

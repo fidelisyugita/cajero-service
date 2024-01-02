@@ -24,6 +24,7 @@ const inventoryDoc = db.collection("master").doc("inventory");
 
 const measureUnitsCollection = db.collection("measureUnits");
 const productCategoriesCollection = db.collection("productCategories");
+const variantsCollection = db.collection("variants");
 const transactionStatusesCollection = db.collection("transactionStatuses");
 const paymentMethodCollection = db.collection("paymentMethod");
 const transactionTypesCollection = db.collection("transactionTypes");
@@ -52,6 +53,7 @@ module.exports = {
 
   measureUnitsCollection,
   productCategoriesCollection,
+  variantsCollection,
   transactionStatusesCollection,
   paymentMethodCollection,
   transactionTypesCollection,

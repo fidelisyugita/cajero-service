@@ -41,7 +41,7 @@ const measureUnit = require("./src/product/measureUnit");
 
 const productCategory = require("./src/product/productCategory");
 const product = require("./src/product/product");
-const productVariant = require("./src/product/productVariant");
+const variant = require("./src/product/variant");
 
 const transaction = require("./src/transaction/transaction");
 const transactionStatus = require("./src/transaction/transactionStatus");
@@ -60,7 +60,7 @@ exports.dashboard = dashboard;
 
 exports.productCategory = productCategory;
 exports.product = product;
-exports.productVariant = productVariant;
+exports.variant = variant;
 exports.measureUnit = measureUnit;
 
 exports.transaction = transaction;

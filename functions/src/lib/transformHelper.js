@@ -21,39 +21,37 @@ exports.thinContact = (obj) => {
   return null;
 };
 
-exports.thinProductVariant = (obj) => {
-  if (obj && obj.barcode)
-    return {
-      size: obj.size,
-      buyingPrice: Number(obj.buyingPrice || 0),
-      sellingPrice: Number(obj.sellingPrice || 0),
-      stock: Number(obj.stock || 0),
-      sold: Number(obj.sold || 0),
-
-      sku: obj.sku,
-      barcode: obj.barcode,
-
-      skuLowercase: String(obj.sku).toLowerCase(),
-    };
-  return null;
-};
-
 exports.thinTransactionProduct = (obj) => {
+  const sVariants = obj?.variants.map((svar) => {
+    const vList = svar?.list.map((np) => {
+      const res = {
+        name: np?.name,
+        price: np?.price,
+      };
+      return res;
+    });
+
+    const res = {
+      name: svar?.name,
+      list: vList,
+    };
+    return res;
+  });
+
   return {
     id: obj.id,
-    sku: obj.sku,
-    barcode: obj.barcode,
-    size: obj.size,
-    color: obj.color,
     name: obj.name,
-    category: this.thinObject(obj.category),
+    note: obj.note,
     buyingPrice: Number(obj.buyingPrice || 0),
-    sellingPrice: Number(obj.sellingPrice || 0),
+    sellingPrice: Number(obj.sellingPrice || 0), // plus variants price
+
+    commission: obj.commissionByPercent
+      ? Number(obj.buyingPrice / obj.commissionByPercent || 0)
+      : obj.commission,
+
+    selectedVariants: sVariants,
+
     amount: Number(obj.amount || 0),
-    received: Number(obj.received || 0),
-    rejected: Number(obj.rejected || 0),
-    imageUrl: obj.imageUrl,
-    measureUnit: this.thinObject(obj.measureUnit),
   };
 };
 

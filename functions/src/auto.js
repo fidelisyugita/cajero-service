@@ -18,6 +18,13 @@ exports.createUser = auth.user().onCreate(async (user) => {
     role: "STAFF",
     imageUrl: user.photoURL,
 
+    // address: address,
+    // description: description,
+    // bankAccount: bankAccount,
+    // ktpUrl: ktpUrl,
+    // dailySalary: dailySalary,
+    // overtime: overtime,
+
     id: user.uid,
     isActive: true,
 
