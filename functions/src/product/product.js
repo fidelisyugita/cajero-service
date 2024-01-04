@@ -1,7 +1,7 @@
 const { logger, https } = require("firebase-functions/v2");
 const { isNil, isEmpty } = require("ramda");
 
-const { v4 } = require("uuid");
+const uuid = require("uuid");
 
 const { LIMIT_PER_PAGE } = require("../lib/config");
 const { authenticate } = require("../lib/authHelper");
@@ -56,7 +56,7 @@ app.post("/", async (req, res) => {
   try {
     const body = req?.body || {};
 
-    let pId = v4();
+    let pId = uuid.v4();
     if (req?.body?.id) {
       pId = req?.body?.id;
       delete req?.body?.stock;

@@ -22,7 +22,7 @@ exports.thinContact = (obj) => {
 };
 
 exports.thinTransactionProduct = (obj) => {
-  const sVariants = obj?.variants.map((svar) => {
+  const sVariants = obj?.selectedVariants.map((svar) => {
     const vList = svar?.list.map((np) => {
       const res = {
         name: np?.name,

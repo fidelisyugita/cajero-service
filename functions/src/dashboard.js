@@ -31,9 +31,9 @@ app.get("/", async (req, res) => {
 
   if (!isEmpty(keyword))
     transactionRef = transactionRef
-      .where("invoiceCodeLowercase", ">=", keyword)
-      .where("invoiceCodeLowercase", "<=", keyword + "\uf8ff")
-      .orderBy("invoiceCodeLowercase");
+      .where("noteLowercase", ">=", keyword)
+      .where("noteLowercase", "<=", keyword + "\uf8ff")
+      .orderBy("noteLowercase");
   else {
     if (!isEmpty(statusId))
       transactionRef = transactionRef.where("status.id", "==", statusId);
@@ -52,7 +52,6 @@ app.get("/", async (req, res) => {
       // .offset(offset)
       .get();
 
-    let cashOut = 0;
     let cashIn = 0;
     let soldItem = 0;
     let rejectItem = 0;
@@ -63,15 +62,13 @@ app.get("/", async (req, res) => {
       transaction.products.forEach((p) => {
         products.push(p);
         rejectItem += p?.rejected || 0;
+        soldItem += p?.amount || 1;
       });
 
-      cashOut += transaction?.totalBuyingPrice || 0;
-      cashIn += transaction?.totalSellingPrice || 0;
-      soldItem += transaction?.totalItem || 0;
+      cashIn += transaction?.totalPrice || 0;
     });
 
     const result = {
-      cashOut,
       cashIn,
       soldItem,
       rejectItem,

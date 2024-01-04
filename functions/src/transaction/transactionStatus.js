@@ -26,7 +26,9 @@ app.get("/", async (req, res) => {
   try {
     const querySnapshot = await transactionStatusesCollection
       .where("isActive", "==", true)
-      .orderBy("step")
+      .where("nameLowercase", ">=", keyword)
+      .where("nameLowercase", "<=", keyword + "\uf8ff")
+      .orderBy("nameLowercase")
       .limit(limit)
       .offset(offset)
       .get();
